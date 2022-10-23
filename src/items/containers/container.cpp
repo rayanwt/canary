@@ -210,13 +210,13 @@ uint32_t Container::getWeight() const
 	return Item::getWeight() + totalWeight;
 }
 
-std::string Container::getContentDescription() const
+std::string Container::getContentDescription(bool oldProtocol) const
 {
 	std::ostringstream os;
-	return getContentDescription(os).str();
+	return getContentDescription(os, oldProtocol).str();
 }
 
-std::ostringstream& Container::getContentDescription(std::ostringstream& os) const
+std::ostringstream& Container::getContentDescription(std::ostringstream& os, bool oldProtocol) const
 {
 	bool firstitem = true;
 	for (ContainerIterator it = iterator(); it.hasNext(); it.advance()) {
@@ -233,7 +233,11 @@ std::ostringstream& Container::getContentDescription(std::ostringstream& os) con
 			os << ", ";
 		}
 
-		os << "{" << item->getID() << "|" << item->getNameDescription() << "}";
+		if (oldProtocol) {
+			os << item->getNameDescription();
+		} else {
+			os << "{" << item->getID() << "|" << item->getNameDescription() << "}";
+		}
 	}
 
 	if (firstitem) {
@@ -468,23 +472,19 @@ ReturnValue Container::queryRemove(const Thing& thing, uint32_t count, uint32_t 
 {
 	int32_t index = getThingIndex(&thing);
 	if (index == -1) {
-		SPDLOG_DEBUG("{} - Failed to get thing index", __FUNCTION__);
 		return RETURNVALUE_NOTPOSSIBLE;
 	}
 
 	const Item* item = thing.getItem();
 	if (item == nullptr) {
-		SPDLOG_DEBUG("{} - Item is nullptr", __FUNCTION__);
 		return RETURNVALUE_NOTPOSSIBLE;
 	}
 
 	if (count == 0 || (item->isStackable() && count > item->getItemCount())) {
-		SPDLOG_DEBUG("{} - Failed to get item count", __FUNCTION__);
 		return RETURNVALUE_NOTPOSSIBLE;
 	}
 
 	if (!item->isMoveable() && !hasBitSet(FLAG_IGNORENOTMOVEABLE, flags)) {
-		SPDLOG_DEBUG("{} - Item is not moveable", __FUNCTION__);
 		return RETURNVALUE_NOTMOVEABLE;
 	}
   const HouseTile* houseTile = dynamic_cast<const HouseTile*>(getTopParent());

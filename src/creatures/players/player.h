@@ -28,7 +28,6 @@
 #include "items/containers/depot/depotchest.h"
 #include "items/containers/depot/depotlocker.h"
 #include "grouping/familiars.h"
-#include "game/gamestore.h"
 #include "grouping/groups.h"
 #include "grouping/guild.h"
 #include "imbuements/imbuements.h"
@@ -549,10 +548,10 @@ class Player final : public Creature, public Cylinder
 
 			stashItems[itemId] = amount;
 		}
-		uint32_t getStashItemCount(uint16_t itemId) const {
+		uint16_t getStashItemCount(uint16_t itemId) const {
 			auto it = stashItems.find(itemId);
 			if (it != stashItems.end()) {
-				return it->second;
+				return static_cast<uint16_t>(it->second);
 			}
 			return 0;
 		}
@@ -1046,44 +1045,6 @@ class Player final : public Creature, public Cylinder
 
 		void openPlayerContainers();
 
-		//store
-		void sendOpenStore(uint8_t serviceType) {
-			if(client) {
-				client->sendOpenStore(serviceType);
-			}
-		}
-
-		void sendShowStoreCategoryOffers(StoreCategory* category) {
-			if(client) {
-				client->sendStoreCategoryOffers(category);
-			}
-		}
-
-		void sendStoreError(GameStoreError_t error, const std::string& errorMessage) {
-			if(client) {
-				client->sendStoreError(error, errorMessage);
-			}
-		}
-
-		void sendStorePurchaseSuccessful(const std::string& message, const uint32_t newCoinBalance) {
-			if(client)
-			{
-				client->sendStorePurchaseSuccessful(message, newCoinBalance);
-			}
-		}
-
-		void sendStoreRequestAdditionalInfo(uint32_t offerId, ClientOffer_t clientOfferType) {
-			if(client) {
-				client->sendStoreRequestAdditionalInfo(offerId, clientOfferType);
-			}
-		}
-
-		void sendStoreTrasactionHistory(HistoryStoreOfferList& list, uint32_t page, uint8_t entriesPerPage) {
-			if(client) {
-				client->sendStoreTrasactionHistory(list, page, entriesPerPage);
-			}
-		}
-
 		// Quickloot
 		void sendLootContainers() {
 			if (client) {
@@ -1531,12 +1492,6 @@ class Player final : public Creature, public Cylinder
 			}
 		}
 
-		void sendStoreOpen(uint8_t serviceType) {
-			if (client) {
-				client->sendOpenStore(serviceType);
-			}
-		}
-
 		void receivePing() {
 			lastPong = OTSYS_TIME();
 		}
@@ -1733,6 +1688,11 @@ class Player final : public Creature, public Cylinder
 			}
 		}
 
+		void sendCreatureHelpers(uint32_t creatureId, uint16_t helpers) {
+			if (client) {
+				client->sendCreatureHelpers(creatureId, helpers);
+			}
+		}
 
    		void createLeaderTeamFinder(NetworkMessage &msg)
  		{
@@ -2087,8 +2047,6 @@ class Player final : public Creature, public Cylinder
 		void updateDepotSearchExhausted() {
 			lastDepotSearchInteraction = OTSYS_TIME();
 		}
-
-		std::pair<std::vector<Item*>, std::map<uint16_t, uint32_t>> requestLockerItems(DepotLocker *depotLocker) const;
 
 	private:
 		std::forward_list<Condition*> getMuteConditions() const;
