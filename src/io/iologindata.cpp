@@ -44,7 +44,8 @@ bool IOLoginData::authenticateAccountPassword(const std::string& accountIdentifi
 	return true;
 }
 
-bool IOLoginData::gameWorldAuthentication(const std::string& accountIdentifier, const std::string& password, std::string& characterName, uint32_t *accountId, bool oldProtocol)
+
+bool IOLoginData::gameWorldAuthentication(const std::string& accountIdentifier, const std::string& password, std::string& characterName, uint32_t *accountId,)
 {
 	account::Account account;
   account.setProtocolCompat(oldProtocol);
